@@ -18,7 +18,7 @@ import { useNavigate } from "react-router-dom";
 
 const defaultTheme = createTheme();
 
-function Register() {
+function Login() {
   const firebase = useFirebase();
 
   const [email, setEmail] = useState("");
@@ -27,13 +27,13 @@ function Register() {
 
   const handleSubmit=async (e)=>{
     e.preventDefault();
-    await firebase.signUpUserWithEmailAndPassword(email,password)
+    const result=await firebase.signInUserWithEmailAndPass(email,password)
     setEmail("")
     setPassword("")
   }
 
   useEffect(()=>{
-    console.log(firebase)
+    console.log(firebase.isLoggedIn)
     if(firebase.isLoggedIn){
       navigate("/")
     }
@@ -55,7 +55,7 @@ function Register() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign up
+            Sign In
           </Typography>
           <Box component="form" noValidate sx={{ mt: 3 }}>
             <Grid container spacing={2}>
@@ -85,13 +85,19 @@ function Register() {
                 />
               </Grid>
             </Grid>
-            <Button fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} onClick={handleSubmit}>
-              Sign Up
+            <Button fullWidth variant="contained" sx={{ mt: 3, mb: 1 }} onClick={handleSubmit}>
+              Sign In
+            </Button>
+            <Typography variant="h5" sx={{mt:1,textAlign:"center",fontWeight:"600"}}>
+              OR
+            </Typography>
+            <Button color="error" fullWidth variant="contained" sx={{ mt: 3, mb: 1 }} onClick={firebase.signinWithGoogle}>
+              Sign In With Google
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                <Link href="/login" variant="body2">
-                  Already have an account? Sign in
+                <Link href="/register" variant="body2">
+                  Don't Have an Account? Sign Up
                 </Link>
               </Grid>
             </Grid>
@@ -102,4 +108,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default Login;

@@ -1,8 +1,17 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+} from "firebase/auth";
 
 const FirebaseContext = createContext(null);
+
+const provider = new GoogleAuthProvider();
 
 const firebaseConfig = {
   apiKey: "AIzaSyDw_skMsqjtOR4tT8DhqOEfQmsEAANn6eo",
@@ -19,12 +28,46 @@ const firebaseAuth = getAuth(firebaseApp);
 export const useFirebase = () => useContext(FirebaseContext);
 
 export const FirebaseProvider = (props) => {
+  const [user, setuser] = useState(null);
+
+  useEffect(() => {
+    onAuthStateChanged(firebaseAuth, (user) => {
+      if (user) setuser(user);
+      else setuser(null);
+    });
+  });
+
+  const signInUserWithEmailAndPass = (email, password) => {
+    signInWithEmailAndPassword(firebaseAuth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        // ...
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
+  };
+
   const signUpUserWithEmailAndPassword = (email, password) => {
     createUserWithEmailAndPassword(firebaseAuth, email, password);
   };
 
+  const signinWithGoogle = () => signInWithPopup(firebaseAuth, provider);
+
+  const isLoggedIn=user ? true :false
+
   return (
-    <FirebaseContext.Provider value={{signUpUserWithEmailAndPassword}}>
+    <FirebaseContext.Provider
+      value={{
+        signUpUserWithEmailAndPassword,
+        signInUserWithEmailAndPass,
+        signinWithGoogle,
+        isLoggedIn
+      }}
+    >
       {props.children}
     </FirebaseContext.Provider>
   );
